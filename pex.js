@@ -88,8 +88,8 @@ function transformErrors(error) {
       if(typeof error[key] === 'object'){
         error[key] = Object.keys(error[key]).reduce( (acc, curr) => {
             // final_list = final_list.concat(el + ". ");
-            return error[key][acc].concat(error[key][curr]);
-
+            console.log("here is the final step, error[key]", error[key]);
+            // return error[key][acc].concat(error[key][curr]);
           });
       }
     })
