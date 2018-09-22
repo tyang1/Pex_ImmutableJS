@@ -85,8 +85,14 @@ function transformErrors(error) {
   }
   Object.keys(error).map(key => {
       error[key] = concatValues(error[key]);
+      if(typeof error[key] === 'object'){
+        error[key] = Object.keys(error[key]).reduce( (acc, curr) => {
+            // final_list = final_list.concat(el + ". ");
+            return error[key][acc].concat(error[key][curr]);
+
+          });
+      }
     })
-  console.log("here is the final result", concatValues(error));
   return Immutable.Map(error);
 }
 it("should tranform errors", () => {
