@@ -2,91 +2,28 @@ const Immutable = require("immutable");
 const assert = require("assert");
 const { merge } = require("immutable");
 const { toJS } = require("immutable");
+const noNested = require("./noNested");
+const concatValues = require("./concatValues")
 
 function transformErrors(error) {
   console.log("inside the transformErrors");
 
   // error going through transformation
   error = error.toJS();
-  function concatValues(value, result = {}, final_list = "") {
-    //checking to see if the value is string
-    if (typeof value === "string") return value;
 
-    //checking to see if the value is array, and return a single string
-    if (Array.isArray(value)) {
-      // a single String, returns itself
-      if (value.length === 1 && typeof value[0] === "string") return value[0];
-
-      //if not a single string, recursively get the string through concatValues function:
-      value.forEach(el => {
-        if (typeof concatValues(el) !== "string") {
-          result = { ...result, ...concatValues(el) };
-        } else {
-          result[concatValues(el)] = true;
-        }
-      });
-      Object.keys(result).forEach(el => {
-        final_list = final_list.concat(el + ".");
-      });
-      return final_list;
-    }
-
-    //else if, checking the value is object
-    else if (typeof value === "object" && !Array.isArray(value)) {
-      console.log("WHAT IS VALUE", value);
-      for (key in value) {
-        //going through each element value of the object, and flatten it.
-        console.log("here is the key of th object", key);
-        console.log("here is the value", value[key]);
-
-        //each key should then holds a value of type string;
-        result = { ...result, ...flatten(value[key]) };
-      }
-
-      //returning object with key of type string, and values of "true";
-      return result;
-
-      //Merge Function:
-      //Input type: object
-      //Return type: object
-      // function merge(objList, result = {}) {
-      //   Object.keys(objList).forEach(el => {
-      //     console.log("INSIDE THE MERGE, here's the el", el);
-      //     result[objList[el]] = true;
-      //     console.log("TRACKING RESULT", result);
-      //   });
-      //   return result;
-      // }
-
-      // Flatten function:
-      // Return type: String
-      function flatten(obj, visited = {}) {
-        //if the element to be flattened is not an object:
-        //if the element is a String
-        if (typeof obj === "string") {
-          visited[obj] = true;
-          console.log("IT IS A STRING", visited);
-          return visited;
-        }
-        //if the elent is an Array
-        for (let key in obj) {
-          console.log("in flatten foor LOOPPPPPP", obj[key]);
-          // visited = visited.concat(flatten(obj[key], ""));
-          //here, visited
-          visited = { ...visited, ...flatten(obj[key]) };
-          console.log("PLEASE WORK", visited);
-        }
-        return visited;
-      }
-    }
-  }
+ 
+  //MAIN FUNCTION CALL:
   Object.keys(error).map(key => {
-    error[key] = concatValues(error[key]);
-    if (typeof error[key] === "object") {
-      console.log("SHOULD SEE THIS!!!!!", error[key]);
-      error[key] = Object.keys(error[key]).reduce((acc, curr) => {
-        return acc.concat(curr);
-      });
+    if (key === "url" || key === "urls") {
+        error[key] = noNested(error[key]);
+    } else {
+      error[key] = concatValues(error[key]);
+      if (typeof error[key] === "object") {
+        error[key] = Object.keys(error[key]).reduce((acc, curr) => {
+          return acc.concat(curr + ".");
+        });
+        error[key].concat(".");
+      }
     }
   });
   return Immutable.Map(error);
