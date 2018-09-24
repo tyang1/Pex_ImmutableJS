@@ -14,15 +14,14 @@ function transformErrors(error) {
 
     //checking to see if the value is array, and return a single string
     if (Array.isArray(value)) {
-
       // a single String, returns itself
       if (value.length === 1 && typeof value[0] === "string") return value[0];
 
       //if not a single string, recursively get the string through concatValues function:
       value.forEach(el => {
-        if (typeof concatValues(el) !== 'string'){
-          result = {...result, ...concatValues(el)};
-        } else{
+        if (typeof concatValues(el) !== "string") {
+          result = { ...result, ...concatValues(el) };
+        } else {
           result[concatValues(el)] = true;
         }
       });
@@ -39,13 +38,11 @@ function transformErrors(error) {
         //going through each element value of the object, and flatten it.
         console.log("here is the key of th object", key);
         console.log("here is the value", value[key]);
-  
+
         //each key should then holds a value of type string;
-        result = {...result, ...flatten(value[key])};
+        result = { ...result, ...flatten(value[key]) };
       }
-      
-      console.log('HERE IS RESULT', result)
-      // value = merge(result);
+
       //returning object with key of type string, and values of "true";
       return result;
 
@@ -76,7 +73,7 @@ function transformErrors(error) {
           console.log("in flatten foor LOOPPPPPP", obj[key]);
           // visited = visited.concat(flatten(obj[key], ""));
           //here, visited
-          visited = {...visited, ...flatten(obj[key])}
+          visited = { ...visited, ...flatten(obj[key]) };
           console.log("PLEASE WORK", visited);
         }
         return visited;
@@ -84,15 +81,14 @@ function transformErrors(error) {
     }
   }
   Object.keys(error).map(key => {
-      error[key] = concatValues(error[key]);
-      if(typeof error[key] === 'object'){
-        error[key] = Object.keys(error[key]).reduce( (acc, curr) => {
-            // final_list = final_list.concat(el + ". ");
-            console.log("here is the final step, error[key]", error[key]);
-            // return error[key][acc].concat(error[key][curr]);
-          });
-      }
-    })
+    error[key] = concatValues(error[key]);
+    if (typeof error[key] === "object") {
+      console.log("SHOULD SEE THIS!!!!!", error[key]);
+      error[key] = Object.keys(error[key]).reduce((acc, curr) => {
+        return acc.concat(curr);
+      });
+    }
+  });
   return Immutable.Map(error);
 }
 it("should tranform errors", () => {
